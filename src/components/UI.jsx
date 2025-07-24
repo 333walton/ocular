@@ -117,7 +117,7 @@ export const UI = () => {
               Ocular
             </h1>
             <h2 className="shrink-0 text-white text-8xl italic font-light">
-              Ocular Labs
+              Ocular Labs 
             </h2>
             <h2 className="shrink-0 text-white text-12xl font-bold">
               Three.js
