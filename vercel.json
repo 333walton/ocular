@@ -3,7 +3,13 @@
     {
       "source": "/(.*)",
       "destination": "https://beta.ocular.agency/$1",
-      "permanent": true
+      "permanent": true,
+      "has": [
+        {
+          "type": "host",
+          "value": "ocular.agency"
+        }
+      ]
     }
   ]
 }
