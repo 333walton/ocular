@@ -1,5 +1,9 @@
 {
   "redirects": [
-    { "source": "/", "destination": "https://beta.ocular.agency", "permanent": true }
+    {
+      "source": "/(.*)",
+      "destination": "https://beta.ocular.agency/$1",
+      "permanent": true
+    }
   ]
 }
