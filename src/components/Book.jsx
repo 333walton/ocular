@@ -95,7 +95,7 @@ const Page = ({ number, front, back, page, opened, bookClosed, ...props }) => {
   // Use video texture only for book cover
   let videoTexture = null;
   try {
-    videoTexture = front === "book-cover" ? useVideoTexture("/videos/ocular-animated-rough5.mp4", {
+    videoTexture = front === "book-cover" ? useVideoTexture("/videos/ocular-animated-rough6.mp4", {
       muted: true,
       loop: true,
       start: true,
@@ -156,7 +156,7 @@ const Page = ({ number, front, back, page, opened, bookClosed, ...props }) => {
         emissiveIntensity: 0,
       }),
       new MeshStandardMaterial({
-        color: back === "book-back" ? new Color("#282424") : whiteColor,
+        color: back === "book-back" ? new Color("#0c1008") : whiteColor,
         map: (back === "book-back") ? null : picture2, // No texture for back cover, just color
         ...(number === pages.length - 1
           ? {
