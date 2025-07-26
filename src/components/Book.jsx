@@ -95,10 +95,13 @@ const Page = ({ number, front, back, page, opened, bookClosed, ...props }) => {
   // Use video texture only for book cover
   let videoTexture = null;
   try {
-    videoTexture = front === "book-cover" ? useVideoTexture("/videos/ocular-animated-rough5.mp4", {
+    videoTexture = front === "book-cover" ? useVideoTexture("/videos/ocular-animated-rough.mp4", {
       muted: true,
       loop: true,
       start: true,
+      playsInline: true, // Critical for mobile
+      crossOrigin: "anonymous",
+      preload: "auto"
     }) : null;
   } catch (error) {
     console.warn("Video texture failed to load:", error);
