@@ -95,7 +95,7 @@ const Page = ({ number, front, back, page, opened, bookClosed, ...props }) => {
   // Use video texture only for book cover
   let videoTexture = null;
   try {
-    videoTexture = front === "book-cover" ? useVideoTexture("/videos/ocular-animated-rough.mp4", {
+    videoTexture = front === "book-cover" ? useVideoTexture("/videos/ocular-animated-rough5.mp4", {
       muted: true,
       loop: true,
       start: true,
