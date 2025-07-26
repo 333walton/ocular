@@ -123,7 +123,7 @@ export const UI = () => {
               Ocular
             </h1>
             <h2 className="shrink-0 text-white text-5xl md:text-8xl italic font-light">
-              Ocular Labs            </h2>
+              Mobile            </h2>
             <h2 className="shrink-0 text-white text-7xl md:text-12xl font-bold">
               Digital
             </h2>
@@ -137,10 +137,10 @@ export const UI = () => {
               Performance
             </h2>
             <h2 className="shrink-0 text-white text-8xl md:text-13xl font-bold">
-              Ocular
+              Ocular Labs
             </h2>
             <h2 className="shrink-0 text-transparent text-8xl md:text-13xl font-bold outline-text italic">
-              Creative
+              Display
             </h2>
           </div>
           <div className="absolute top-0 left-0 bg-white/0 animate-horizontal-scroll-2 flex items-center gap-8 px-8 w-max">

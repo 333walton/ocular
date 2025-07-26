@@ -19,6 +19,7 @@ import {
 import { degToRad } from "three/src/math/MathUtils.js";
 import { pageAtom, pages } from "./UI";
 
+
 const easingFactor = 0.5;
 const easingFactorFold = 0.3;
 const insideCurveStrength = 0.18;
@@ -40,6 +41,7 @@ const pageGeometry = new BoxGeometry(
 );
 
 pageGeometry.translate(PAGE_WIDTH / 2, 0, 0);
+
 
 const position = pageGeometry.attributes.position;
 const vertex = new Vector3();
@@ -67,20 +69,29 @@ pageGeometry.setAttribute(
 );
 
 const whiteColor = new Color("white");
+const brightWhiteColor = new Color(1.2, 1.2, 1.2);
 const emissiveColor = new Color("orange");
 
 const pageMaterials = [
   new MeshStandardMaterial({
-    color: whiteColor,
+    color: brightWhiteColor,
+    roughness: 0.8,
+    metalness: 0.0,
   }),
   new MeshStandardMaterial({
-    color: "#111",
+    color: "#444",
+    roughness: 0.8,
+    metalness: 0.0,
   }),
   new MeshStandardMaterial({
-    color: whiteColor,
+    color: brightWhiteColor,
+    roughness: 0.8,
+    metalness: 0.0,
   }),
   new MeshStandardMaterial({
-    color: whiteColor,
+    color: brightWhiteColor,
+    roughness: 0.8,
+    metalness: 0.0,
   }),
 ];
 
@@ -114,9 +125,17 @@ const Page = ({ number, front, back, page, opened, bookClosed, ...props }) => {
     ...(number === 0 || number === pages.length - 1 ? [] : []),
   ]);
 
-  // Set color space
-  if (picture) picture.colorSpace = SRGBColorSpace;
-  if (picture2) picture2.colorSpace = SRGBColorSpace;
+  // Set color space and optimize textures
+  if (picture) {
+    picture.colorSpace = SRGBColorSpace;
+    picture.offset.set(0, 0);
+    picture.repeat.set(1, 1);
+  }
+  if (picture2) {
+    picture2.colorSpace = SRGBColorSpace;
+    picture2.offset.set(0, 0);
+    picture2.repeat.set(1, 1);
+  }
   if (videoTexture) videoTexture.colorSpace = SRGBColorSpace;
 
   const group = useRef();
@@ -143,28 +162,28 @@ const Page = ({ number, front, back, page, opened, bookClosed, ...props }) => {
     const materials = [
       ...pageMaterials,
       new MeshStandardMaterial({
-        color: whiteColor,
-        map: (front === "book-cover" && videoTexture) ? videoTexture : picture, // Use video only if it loaded
+        color: brightWhiteColor,
+        map: (front === "book-cover" && videoTexture) ? videoTexture : picture,
+        roughness: 0.8, // Increased for matte appearance
+        metalness: 0.0, // Keep at 0 for non-metallic look
         ...(number === 0
           ? {
               roughnessMap: pictureRoughness,
             }
-          : {
-              roughness: 0.1,
-            }),
+          : {}),
         emissive: emissiveColor,
         emissiveIntensity: 0,
       }),
       new MeshStandardMaterial({
-        color: back === "book-back" ? new Color("#0c1008") : whiteColor,
-        map: (back === "book-back") ? null : picture2, // No texture for back cover, just color
+        color: back === "book-back" ? new Color("#444") : brightWhiteColor, // Lighter back color
+        map: (back === "book-back") ? null : picture2,
+        roughness: 0.8, // Increased for matte appearance
+        metalness: 0.0,
         ...(number === pages.length - 1
           ? {
               roughnessMap: pictureRoughness,
             }
-          : {
-              roughness: 0.1,
-            }),
+          : {}),
         emissive: emissiveColor,
         emissiveIntensity: 0,
       }),
