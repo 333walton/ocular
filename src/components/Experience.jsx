@@ -6,8 +6,8 @@ export const Experience = () => {
       <Float
         rotation-x={-Math.PI / 4}
         floatIntensity={1}
-        speed={2}
-        rotationIntensity={2}
+        speed={1}
+        rotationIntensity={1}
       >
         <Book />
       </Float>
@@ -15,7 +15,7 @@ export const Experience = () => {
       <Environment preset="studio"></Environment>
       <directionalLight
         position={[2, 5, 2]}
-        intensity={2.5}
+        intensity={0}
         castShadow
         shadow-mapSize-width={2048}
         shadow-mapSize-height={2048}

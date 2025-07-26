@@ -1,5 +1,5 @@
 import { atom, useAtom } from "jotai";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const pictures = [
   "1",
@@ -41,21 +41,52 @@ pages.push({
 
 export const UI = () => {
   const [page, setPage] = useAtom(pageAtom);
+  const videoRef = useRef(null);
+  const [hasPlayedInitial, setHasPlayedInitial] = useState(false);
 
   useEffect(() => {
     const audio = new Audio("/audios/page-flip-01a.mp3");
     audio.play();
   }, [page]);
 
+  // Play animation on initial load
+  useEffect(() => {
+    if (videoRef.current && !hasPlayedInitial) {
+      videoRef.current.play();
+      setHasPlayedInitial(true);
+    }
+  }, [hasPlayedInitial]);
+
+  const handleLogoInteraction = () => {
+    if (videoRef.current) {
+      videoRef.current.currentTime = 0; // Reset to beginning
+      videoRef.current.play();
+    }
+  };
+
   return (
     <>
       <main className=" pointer-events-none select-none z-10 fixed  inset-0  flex justify-between flex-col">
-        <a
-          className="pointer-events-auto mt-10 ml-10"
-          href=""
-        >
-          <img className="w-20" src="" />
-        </a>
+        <div className="flex justify-between items-start w-full">
+          <a
+            className="pointer-events-auto mt-10 ml-10"
+            href=""
+          >
+            <video 
+              ref={videoRef}
+              className="w-40 h-40 cursor-pointer" 
+              src=""
+              muted
+              playsInline
+              onMouseEnter={handleLogoInteraction}
+              onClick={handleLogoInteraction}
+              onTouchStart={handleLogoInteraction}
+            />
+          </a>
+          
+          {/* Remove this - logo is now in top left */}
+        </div>
+
         <div className="w-full overflow-auto pointer-events-auto flex justify-center">
           <div className="overflow-auto flex items-center gap-4 max-w-full p-10">
             {[...pages].map((_, index) => (

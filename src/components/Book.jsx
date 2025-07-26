@@ -1,4 +1,4 @@
-import { useCursor, useTexture } from "@react-three/drei";
+import { useCursor, useTexture, useVideoTexture } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useAtom } from "jotai";
 import { easing } from "maath";
@@ -19,14 +19,14 @@ import {
 import { degToRad } from "three/src/math/MathUtils.js";
 import { pageAtom, pages } from "./UI";
 
-const easingFactor = 0.5; // Controls the speed of the easing
-const easingFactorFold = 0.3; // Controls the speed of the easing
-const insideCurveStrength = 0.18; // Controls the strength of the curve
-const outsideCurveStrength = 0.05; // Controls the strength of the curve
-const turningCurveStrength = 0.09; // Controls the strength of the curve
+const easingFactor = 0.5;
+const easingFactorFold = 0.3;
+const insideCurveStrength = 0.18;
+const outsideCurveStrength = 0.05;
+const turningCurveStrength = 0.09;
 
 const PAGE_WIDTH = 1.28;
-const PAGE_HEIGHT = 1.71; // 4:3 aspect ratio
+const PAGE_HEIGHT = 1.71;
 const PAGE_DEPTH = 0.003;
 const PAGE_SEGMENTS = 30;
 const SEGMENT_WIDTH = PAGE_WIDTH / PAGE_SEGMENTS;
@@ -47,15 +47,14 @@ const skinIndexes = [];
 const skinWeights = [];
 
 for (let i = 0; i < position.count; i++) {
-  // ALL VERTICES
-  vertex.fromBufferAttribute(position, i); // get the vertex
-  const x = vertex.x; // get the x position of the vertex
+  vertex.fromBufferAttribute(position, i);
+  const x = vertex.x;
 
-  const skinIndex = Math.max(0, Math.floor(x / SEGMENT_WIDTH)); // calculate the skin index
-  let skinWeight = (x % SEGMENT_WIDTH) / SEGMENT_WIDTH; // calculate the skin weight
+  const skinIndex = Math.max(0, Math.floor(x / SEGMENT_WIDTH));
+  let skinWeight = (x % SEGMENT_WIDTH) / SEGMENT_WIDTH;
 
-  skinIndexes.push(skinIndex, skinIndex + 1, 0, 0); // set the skin indexes
-  skinWeights.push(1 - skinWeight, skinWeight, 0, 0); // set the skin weights
+  skinIndexes.push(skinIndex, skinIndex + 1, 0, 0);
+  skinWeights.push(1 - skinWeight, skinWeight, 0, 0);
 }
 
 pageGeometry.setAttribute(
@@ -86,23 +85,40 @@ const pageMaterials = [
 ];
 
 pages.forEach((page) => {
-  useTexture.preload(`/textures/${page.front}.jpg`);
+  if (page.front !== "book-cover") {
+    useTexture.preload(`/textures/${page.front}.jpg`);
+  }
   useTexture.preload(`/textures/${page.back}.jpg`);
 });
 
 const Page = ({ number, front, back, page, opened, bookClosed, ...props }) => {
+  // Use video texture only for book cover
+  let videoTexture = null;
+  try {
+    videoTexture = front === "book-cover" ? useVideoTexture("/videos/ocular-animated-rough5.mp4", {
+      muted: true,
+      loop: true,
+      start: true,
+    }) : null;
+  } catch (error) {
+    console.warn("Video texture failed to load:", error);
+    videoTexture = null;
+  }
+
   const [picture, picture2, pictureRoughness] = useTexture([
-    `/textures/${front}.jpg`,
+    `/textures/${front}.jpg`, // Always use regular texture
     `/textures/${back}.jpg`,
-    ...(number === 0 || number === pages.length - 1
-      ? []
-      : []),
+    ...(number === 0 || number === pages.length - 1 ? [] : []),
   ]);
-  picture.colorSpace = picture2.colorSpace = SRGBColorSpace;
+
+  // Set color space
+  if (picture) picture.colorSpace = SRGBColorSpace;
+  if (picture2) picture2.colorSpace = SRGBColorSpace;
+  if (videoTexture) videoTexture.colorSpace = SRGBColorSpace;
+
   const group = useRef();
   const turnedAt = useRef(0);
   const lastOpened = useRef(opened);
-
   const skinnedMeshRef = useRef();
 
   const manualSkinnedMesh = useMemo(() => {
@@ -116,7 +132,7 @@ const Page = ({ number, front, back, page, opened, bookClosed, ...props }) => {
         bone.position.x = SEGMENT_WIDTH;
       }
       if (i > 0) {
-        bones[i - 1].add(bone); // attach the new bone to the previous bone
+        bones[i - 1].add(bone);
       }
     }
     const skeleton = new Skeleton(bones);
@@ -125,7 +141,7 @@ const Page = ({ number, front, back, page, opened, bookClosed, ...props }) => {
       ...pageMaterials,
       new MeshStandardMaterial({
         color: whiteColor,
-        map: picture,
+        map: (front === "book-cover" && videoTexture) ? videoTexture : picture, // Use video only if it loaded
         ...(number === 0
           ? {
               roughnessMap: pictureRoughness,
@@ -137,8 +153,8 @@ const Page = ({ number, front, back, page, opened, bookClosed, ...props }) => {
         emissiveIntensity: 0,
       }),
       new MeshStandardMaterial({
-        color: whiteColor,
-        map: picture2,
+        color: back === "book-back" ? new Color("#282424") : whiteColor,
+        map: (back === "book-back") ? null : picture2, // No texture for back cover, just color
         ...(number === pages.length - 1
           ? {
               roughnessMap: pictureRoughness,
@@ -157,9 +173,7 @@ const Page = ({ number, front, back, page, opened, bookClosed, ...props }) => {
     mesh.add(skeleton.bones[0]);
     mesh.bind(skeleton);
     return mesh;
-  }, []);
-
-  // useHelper(skinnedMeshRef, SkeletonHelper, "red");
+  }, [videoTexture, picture, picture2, pictureRoughness, front, number]);
 
   useFrame((_, delta) => {
     if (!skinnedMeshRef.current) {
